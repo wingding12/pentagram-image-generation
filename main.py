@@ -20,7 +20,7 @@ image = (modal.Image.debian_slim()
          .pip_install("fastapi[standard]", "transformers", "accelerate", "diffusers", "requests", "torch")
          .run_function(download_model))
 
-# comment out for local testing
+
 app = modal.App("sd-demo", image=image)
 
 def is_safe_prompt(prompt: str) -> tuple[bool, str]:
