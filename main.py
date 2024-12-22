@@ -28,8 +28,7 @@ def is_safe_prompt(prompt: str) -> tuple[bool, str]:
     forbidden_patterns = [
         r'\b(nude|naked|porn|sex|explicit|nsfw)\b',
         r'violence|gore|blood|kill|murder',
-        r'racist|nazi|terrorism|hate speech',
-        # Add more patterns as needed
+        r'racist|nazi|terrorism|hate speech'
     ]
     
     # Convert prompt to lowercase for case-insensitive matching
@@ -46,7 +45,7 @@ def is_safe_prompt(prompt: str) -> tuple[bool, str]:
     image=image,
     gpu="A10G",
     container_idle_timeout=300,
-    secrets=[modal.Secret.from_name("MODAL_API_KEY")],
+    secrets=[modal.Secret.from_name("CLIENT_TOKEN_1")],
 )
 class Model:
 
@@ -63,7 +62,7 @@ class Model:
         )
 
         self.pipe.to("cuda")
-        self.MODAL_API_KEY = os.environ["MODAL_API_KEY"]
+        self.CLIENT_TOKEN_1 = os.environ["CLIENT_TOKEN_1"]
 
     @modal.web_endpoint()
     def generate(self, request: Request, prompt: str = Query(..., description="The prompt for image generation")):
@@ -93,7 +92,7 @@ class Model:
         # Get the generated image with safety settings
         images = self.pipe(
             prompt,
-            num_inference_steps=100,
+            num_inference_steps=1000,
             guidance_scale=7.5,
             negative_prompt="nsfw, nude, naked, sex, porn, violence, gore, blood, injury, disturbing, drugs",
         ).images[0]
@@ -114,7 +113,7 @@ class Model:
 # Warm-keeping function that runs every 5 minutes
 @app.function(
     schedule=modal.Cron("*/5 * * * *"),
-    secrets=[modal.Secret.from_name("MODAL_API_KEY")]
+    secrets=[modal.Secret.from_name("CLIENT_TOKEN_1")]
 )
 def keep_warm():
     health_url = "https://wingding12--sd-demo-model-health.modal.run"
